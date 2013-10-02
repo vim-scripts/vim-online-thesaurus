@@ -1,6 +1,6 @@
 " Vim plugin for looking up words in an online thesaurus
 " Author:       Anton Beloglazov <http://beloglazov.info/>
-" Version:      0.1.5
+" Version:      0.1.6
 " Original idea and code: Nick Coleman <http://www.nickcoleman.org/>
 
 if exists("g:loaded_online_thesaurus")
@@ -13,14 +13,13 @@ set cpo&vim
 
 let s:path = expand("<sfile>:p:h")
 
-function! s:Lookup()
-    let s:word = expand('<cword>')
+function! s:Lookup(word)
     silent keepalt belowright split thesaurus
     setlocal noswapfile nobuflisted nospell nowrap modifiable
     setlocal buftype=nofile bufhidden=hide
     1,$d
-    echo "Requesting thesaurus.com to look up the word \"" . s:word . "\"..."
-    exec ":silent 0r !" . s:path . "/thesaurus-lookup.sh " . s:word
+    echo "Requesting thesaurus.com to look up the word \"" . a:word . "\"..."
+    exec ":silent 0r !" . s:path . "/thesaurus-lookup.sh " . a:word
     normal! Vgqgg
     exec 'resize ' . (line('$') - 1)
     setlocal nomodifiable filetype=thesaurus
@@ -32,9 +31,11 @@ if !exists('g:online_thesaurus_map_keys')
 endif
 
 if g:online_thesaurus_map_keys
-    nnoremap <unique> <LocalLeader>K :call <SID>Lookup()<CR>
+    nnoremap <unique> <LocalLeader>K :OnlineThesaurusCurrentWord<CR>
 endif
 
-command! OnlineThesaurusLookup :call <SID>Lookup()
+command! OnlineThesaurusCurrentWord :call <SID>Lookup(expand('<cword>'))
+command! OnlineThesaurusLookup :call <SID>Lookup(expand('<cword>'))
+command! -nargs=1 Thesaurus :call <SID>Lookup(<f-args>)
 
 let &cpo = s:save_cpo
