@@ -1,6 +1,6 @@
 " Vim plugin for looking up words in an online thesaurus
 " Author:       Anton Beloglazov <http://beloglazov.info/>
-" Version:      0.1.9
+" Version:      0.2.0
 " Original idea and code: Nick Coleman <http://www.nickcoleman.org/>
 
 if exists("b:current_syntax")
@@ -15,14 +15,16 @@ setlocal iskeyword+=:
 syntax match thesMainEntry /Main entry: */ contained
 syntax keyword thesDefinition Definition:
 syntax keyword thesSynonyms Synonyms:
+syntax keyword thesPartOfSpeech noun pron verb adj adv prep conj interj
 
 " Entry contents rules
 syntax region thesMainWord start=/Main entry:/  end=/$/ contains=CONTAINED keepend
 
 " Highlighting
-hi link thesMainEntry  Keyword
-hi link thesDefinition Keyword
-hi link thesSynonyms   Keyword
-hi thesMainWord        term=bold cterm=bold gui=bold
+hi link thesMainEntry   Keyword
+hi link thesDefinition  Keyword
+hi link thesSynonyms    Keyword
+hi thesMainWord         term=bold cterm=bold gui=bold
+hi thesPartOfSpeech     term=italic cterm=italic gui=italic
 
 let b:current_syntax = "thesaurus"

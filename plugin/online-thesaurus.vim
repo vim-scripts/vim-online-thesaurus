@@ -1,6 +1,6 @@
 " Vim plugin for looking up words in an online thesaurus
 " Author:       Anton Beloglazov <http://beloglazov.info/>
-" Version:      0.1.9
+" Version:      0.2.0
 " Original idea and code: Nick Coleman <http://www.nickcoleman.org/>
 
 if exists("g:loaded_online_thesaurus")
@@ -13,14 +13,29 @@ set cpo&vim
 
 let s:path = expand("<sfile>:p:h")
 
+silent let s:sort = system('if command -v /bin/sort > /dev/null; then'
+            \ . ' echo -n /bin/sort;'
+            \ . ' else echo -n sort; fi')
+
 function! s:Lookup(word)
-    silent keepalt belowright split thesaurus
+    let l:thesaurus_window = bufwinnr('thesaurus')
+
+    if l:thesaurus_window > -1
+        exec l:thesaurus_window . "wincmd w"
+    else
+        silent keepalt belowright split thesaurus
+    endif
+
     setlocal noswapfile nobuflisted nospell nowrap modifiable
     setlocal buftype=nofile bufhidden=hide
     1,$d
     echo "Requesting thesaurus.com to look up the word \"" . a:word . "\"..."
     exec ":silent 0r !" . s:path . "/thesaurus-lookup.sh " . a:word
-    normal! Vgqgg
+    exec ":silent g/\\vrelevant-\\d+/,/^$/!" . s:sort . " -t ' ' -k 1,1r -k 2,2"
+    silent g/\vrelevant-\d+ /s///
+    silent g/^Synonyms/+;/^$/-2s/$\n/, /
+    silent g/^Synonyms:/ normal! JVgq
+    0
     exec 'resize ' . (line('$') - 1)
     setlocal nomodifiable filetype=thesaurus
     nnoremap <silent> <buffer> q :q<CR>
