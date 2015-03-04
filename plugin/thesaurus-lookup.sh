@@ -2,10 +2,10 @@
 
 # Vim plugin for looking up words in an online thesaurus
 # Author:       Anton Beloglazov <http://beloglazov.info/>
-# Version:      0.2.0
+# Version:      0.2.1
 # Original idea and code: Nick Coleman <http://www.nickcoleman.org/>
 
-URL="http://www.thesaurus.com/browse/${1}"
+URL="http://www.thesaurus.com/browse/${1/ /+}"
 
 if [ "$(uname)" = "FreeBSD" ]; then
         DOWNLOAD="fetch"
