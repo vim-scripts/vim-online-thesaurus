@@ -1,6 +1,6 @@
 " Vim plugin for looking up words in an online thesaurus
 " Author:       Anton Beloglazov <http://beloglazov.info/>
-" Version:      0.2.1
+" Version:      0.2.2
 " Original idea and code: Nick Coleman <http://www.nickcoleman.org/>
 
 if exists("g:loaded_online_thesaurus")
@@ -10,12 +10,14 @@ let g:loaded_online_thesaurus = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
+let s:save_shell = &shell
+let &shell = '/bin/sh'
 
 let s:path = shellescape(expand("<sfile>:p:h"))
 
 silent let s:sort = system('if command -v /bin/sort > /dev/null; then'
-            \ . ' echo -n /bin/sort;'
-            \ . ' else echo -n sort; fi')
+            \ . ' printf /bin/sort;'
+            \ . ' else printf sort; fi')
 
 function! s:Lookup(word)
     let l:thesaurus_window = bufwinnr('^thesaurus$')
@@ -34,7 +36,7 @@ function! s:Lookup(word)
     exec ":silent 0r !" . s:path . "/thesaurus-lookup.sh " . shellescape(l:word)
     exec ":silent g/\\vrelevant-\\d+/,/^$/!" . s:sort . " -t ' ' -k 1,1r -k 2,2"
     silent g/\vrelevant-\d+ /s///
-    silent g/^Synonyms/+;/^$/-2s/$\n/, /
+    silent! g/^Synonyms/+;/^$/-2s/$\n/, /
     silent g/^Synonyms:/ normal! JVgq
     0
     exec 'resize ' . (line('$') - 1)
@@ -55,3 +57,4 @@ command! OnlineThesaurusLookup :call <SID>Lookup(expand('<cword>'))
 command! -nargs=1 Thesaurus :call <SID>Lookup(<q-args>)
 
 let &cpo = s:save_cpo
+let &shell = s:save_shell
